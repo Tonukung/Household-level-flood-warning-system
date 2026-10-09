@@ -12,8 +12,8 @@ Physical Computing Project 2026 - IT KMITL
 ## Contributor
 | Student ID | Name | Topic | Profile |
 |--|--|--|--|
-| 68070119 | นายพัชร คงอ่ำ | Data Visualization & Web Development | <img src="./img/68070119.png" width="250">|
-| 68070132 | นางสาวภัชธนสรณ์ พีรวัฒน์กุล | Web Development | <img src="./img/68070132.png" width="250"> |
+| 68070119 | นายพัชร คงอ่ำ | Data Visualization & Backend Development | <img src="./img/68070119.png" width="250">|
+| 68070132 | นางสาวภัชธนสรณ์ พีรวัฒน์กุล | Frontend Development | <img src="./img/68070132.png" width="250"> |
 | 68070172 | นายวิชยุตม์ สร้อยสน | Hardware & Programming | <img src="./img/68070172.png" width="250"> |
 
 ## Source
