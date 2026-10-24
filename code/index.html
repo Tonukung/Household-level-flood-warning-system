@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FloodWatch</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🌊 FloodWatch</h1>
+    <p>Smart Flood Monitoring System</p>
+  </header>
+
+  <main>
+    <section class="dashboard">
+      <article class="card">
+        <h2>ระดับน้ำปัจจุบัน</h2>
+        <p><span id="waterLevel">35</span> cm</p>
+      </article>
+
+      <article class="card">
+        <h2>สถานะความเสี่ยง</h2>
+        <p id="riskStatus">เฝ้าระวัง</p>
+      </article>
+
+      <article class="card">
+        <h2>อัตราการเพิ่มขึ้น</h2>
+        <p id="waterRate">+2 cm/min</p>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>กราฟระดับน้ำย้อนหลัง</h2>
+      <canvas id="waterChart"></canvas>
+    </section>
+
+    <section class="card">
+      <h2>สถานะเซนเซอร์</h2>
+      <p id="deviceStatus">Demo Mode</p>
+      <p id="lastUpdated">ยังไม่ได้รับข้อมูลจริง</p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
