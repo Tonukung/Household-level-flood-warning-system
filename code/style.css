@@ -735,3 +735,263 @@ footer {
     height: 220px;
   }
 }
+
+
+/* ===== Responsive improvements ===== */
+
+/* ป้องกัน element กว้างเกินหน้าจอ */
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+img,
+canvas {
+  max-width: 100%;
+}
+
+.main-content,
+.panel,
+.stat-card,
+.content-grid > *,
+.bottom-grid > * {
+  min-width: 0;
+}
+
+/* ===== Tablet ===== */
+@media (min-width: 701px) and (max-width: 1100px) {
+  .sidebar {
+    width: 205px;
+    padding: 24px 12px;
+  }
+
+  .main-content {
+    margin-left: 205px;
+    padding: 22px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .content-grid,
+  .bottom-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .welcome-banner {
+    padding: 24px;
+  }
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    padding: 14px 12px;
+    position: relative;
+    inset: auto;
+  }
+
+  .brand {
+    margin: 0 0 14px;
+    padding: 0 4px;
+    font-size: 20px;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    margin: 0 2px 4px 0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .main-content {
+    width: 100%;
+    margin: 0;
+    padding: 18px 12px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .header-right {
+    text-align: left;
+  }
+
+  .welcome-banner {
+    min-height: auto;
+    padding: 22px 18px;
+    border-radius: 12px;
+  }
+
+  .welcome-banner h2 {
+    font-size: 21px;
+    line-height: 1.4;
+  }
+
+  .wave-art {
+    display: none;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px 12px;
+  }
+
+  .stat-top {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 15px;
+  }
+
+  .stat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .mini-label {
+    font-size: 8px;
+  }
+
+  .stat-title {
+    font-size: 11px;
+  }
+
+  .metric {
+    gap: 4px;
+  }
+
+  .metric strong {
+    font-size: clamp(22px, 6vw, 29px);
+  }
+
+  .metric > span {
+    font-size: 10px;
+  }
+
+  .stat-foot {
+    font-size: 9px;
+  }
+
+  .status-line strong {
+    font-size: 17px;
+  }
+
+  .content-grid,
+  .bottom-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .panel {
+    padding: 15px 12px;
+  }
+
+  .panel-heading {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .panel-heading h2 {
+    font-size: 14px;
+  }
+
+  .chart-wrap {
+    height: 230px;
+    width: 100%;
+  }
+
+  .chart-legend {
+    font-size: 9px;
+    line-height: 1.8;
+  }
+
+  .quality-details {
+    flex-wrap: wrap;
+  }
+
+  .device-row {
+    gap: 8px;
+  }
+
+  .device-info strong {
+    font-size: 10px;
+    overflow-wrap: anywhere;
+  }
+
+  .device-row .demo-badge,
+  .device-row .neutral-badge {
+    font-size: 8px;
+    padding: 6px;
+  }
+
+  .alert-item {
+    gap: 8px;
+  }
+
+  .alert-item strong {
+    overflow-wrap: anywhere;
+  }
+
+  footer {
+    gap: 8px;
+    line-height: 1.7;
+  }
+}
+
+/* ===== Small phones ===== */
+@media (max-width: 380px) {
+  .main-content {
+    padding: 14px 9px;
+  }
+
+  .stats-grid {
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px 9px;
+  }
+
+  .stat-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .metric strong {
+    font-size: 22px;
+  }
+
+  .nav-link {
+    padding: 9px 7px;
+    font-size: 11px;
+  }
+
+  .panel {
+    padding: 13px 9px;
+  }
+}
