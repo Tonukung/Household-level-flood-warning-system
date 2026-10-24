@@ -1,23 +1,34 @@
+const CRITICAL_LEVEL = 60; // ระดับวิกฤตตัวอย่าง (cm)
+const MAX_LEVEL = 80;
 
-const CRITICAL_LEVEL = 60; // ระดับวิกฤตตัวอย่าง หน่วย cm
+const $ = id => document.getElementById(id);
+const clamp = v => Math.max(0, Math.min(MAX_LEVEL, v));
+const timeText = (date, seconds = false) =>
+  date.toLocaleTimeString("th-TH", {
+    hour: "2-digit",
+    minute: "2-digit",
+    ...(seconds && { second: "2-digit" })
+  });
 
 let currentLevel = 35;
-let previousLevel = 33;
-let previousTime = Date.now() - 60000;
 
-const waterHistory = [12, 16, 19, 27, 33, 35];
-const labels = ["10:00", "10:04", "10:08", "10:12", "10:16", "10:20"];
+// เกณฑ์ความเสี่ยง: [ต่ำกว่า (cm), สถานะ, class ของจุดสี, คำอธิบาย]
+const RISK_LEVELS = [
+  [20, "ปกติ", "normal", "ระดับน้ำอยู่ในช่วงปกติ"],
+  [40, "เฝ้าระวัง", "warning", "ควรติดตามระดับน้ำอย่างใกล้ชิด"],
+  [CRITICAL_LEVEL, "เสี่ยงน้ำท่วม", "danger", "ควรเตรียมพร้อมรับมือสถานการณ์"],
+  [Infinity, "ระดับวิกฤต", "danger", "ถึงเกณฑ์วิกฤตที่กำหนดในตัวอย่าง"]
+];
 
-const waterCanvas = document.getElementById("waterChart");
-
-const waterChart = new Chart(waterCanvas, {
+// ---------- Chart ----------
+const waterChart = new Chart($("waterChart"), {
   type: "line",
   data: {
-    labels: [...labels],
+    labels: ["10:00", "10:04", "10:08", "10:12", "10:16", "10:20"],
     datasets: [
       {
         label: "ระดับน้ำ (cm)",
-        data: [...waterHistory],
+        data: [12, 16, 19, 27, 33, 35],
         borderColor: "#2878cf",
         backgroundColor: "rgba(40, 120, 207, 0.10)",
         fill: true,
@@ -27,209 +38,98 @@ const waterChart = new Chart(waterCanvas, {
       },
       {
         label: "ระดับวิกฤตตัวอย่าง",
-        data: waterHistory.map(() => CRITICAL_LEVEL),
+        data: [],
         borderColor: "#e05252",
         borderDash: [6, 5],
         borderWidth: 1.5,
-        pointRadius: 0,
-        fill: false
+        pointRadius: 0
       }
     ]
   },
   options: {
     responsive: true,
     maintainAspectRatio: false,
-    interaction: {
-      intersect: false,
-      mode: "index"
-    },
-    plugins: {
-      legend: {
-        display: false
-      }
-    },
+    interaction: { intersect: false, mode: "index" },
+    plugins: { legend: { display: false } },
     scales: {
-      x: {
-        grid: {
-          display: false
-        },
-        ticks: {
-          maxTicksLimit: 6,
-          color: "#8997a8"
-        }
-      },
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 6, color: "#8997a8" } },
       y: {
         beginAtZero: true,
         suggestedMax: 70,
-        title: {
-          display: true,
-          text: "ระดับน้ำ (cm)"
-        },
-        ticks: {
-          color: "#8997a8"
-        }
+        title: { display: true, text: "ระดับน้ำ (cm)" },
+        ticks: { color: "#8997a8" }
       }
     }
   }
 });
 
-function updateDashboard(level, rate) {
-  currentLevel = level;
-
-  document.getElementById("waterLevel").textContent =
-    level.toFixed(1).replace(/\.0$/, "");
-
-  document.getElementById("waterRate").textContent =
-    `${rate > 0 ? "+" : ""}${rate.toFixed(1)}`;
-
-  const riskStatus = document.getElementById("riskStatus");
-  const riskDot = document.getElementById("riskDot");
-  const riskDescription =
-    document.getElementById("riskDescription");
-
-  let status;
-  let dotClass;
-  let description;
-
-  if (level < 20) {
-    status = "ปกติ";
-    dotClass = "normal";
-    description = "ระดับน้ำอยู่ในช่วงปกติ";
-  } else if (level < 40) {
-    status = "เฝ้าระวัง";
-    dotClass = "warning";
-    description = "ควรติดตามระดับน้ำอย่างใกล้ชิด";
-  } else if (level < CRITICAL_LEVEL) {
-    status = "เสี่ยงน้ำท่วม";
-    dotClass = "danger";
-    description = "ควรเตรียมพร้อมรับมือสถานการณ์";
-  } else {
-    status = "ระดับวิกฤต";
-    dotClass = "danger";
-    description = "ถึงเกณฑ์วิกฤตที่กำหนดในตัวอย่าง";
-  }
-
-  riskStatus.textContent = status;
-  riskDot.className = `status-dot ${dotClass}`;
-  riskDescription.textContent = description;
-
-  const timeElement =
-    document.getElementById("timeToCritical");
-
-  if (level >= CRITICAL_LEVEL) {
-    timeElement.textContent = "ถึงเกณฑ์แล้ว";
-  } else if (rate > 0) {
-    const minutes = (CRITICAL_LEVEL - level) / rate;
-
-    timeElement.textContent =
-      minutes < 1 ? "<1" : minutes.toFixed(1);
-  } else {
-    timeElement.textContent = "ประเมินไม่ได้";
-  }
-}
-
-function updateChart(level) {
-  const now = new Date();
-
-  const timeLabel = now.toLocaleTimeString("th-TH", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-
-  waterChart.data.labels.push(timeLabel);
-  waterChart.data.datasets[0].data.push(level);
-  waterChart.data.datasets[1].data.push(CRITICAL_LEVEL);
-
-  // เก็บตัวอย่างล่าสุดไม่เกิน 12 จุด
-  if (waterChart.data.labels.length > 12) {
-    waterChart.data.labels.shift();
-    waterChart.data.datasets.forEach(dataset => {
-      dataset.data.shift();
-    });
-  }
-
+// ตั้งค่าข้อมูลกราฟทั้งหมด (เส้นวิกฤตสร้างให้ยาวเท่ากับข้อมูลอัตโนมัติ)
+function setChart(labels, values) {
+  waterChart.data.labels = labels;
+  waterChart.data.datasets[0].data = values;
+  waterChart.data.datasets[1].data = values.map(() => CRITICAL_LEVEL);
   waterChart.update();
 }
 
-function updateTimestamp() {
-  const now = new Date();
+setChart([...waterChart.data.labels], [...waterChart.data.datasets[0].data]);
 
-  document.getElementById("lastUpdated").textContent =
-    "อัปเดตล่าสุด: " +
-    now.toLocaleTimeString("th-TH", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    });
+// ---------- Dashboard ----------
+function updateDashboard(level, rate) {
+  currentLevel = level;
+
+  $("waterLevel").textContent = level.toFixed(1).replace(/\.0$/, "");
+  $("waterRate").textContent = `${rate > 0 ? "+" : ""}${rate.toFixed(1)}`;
+
+  const [, status, dotClass, description] =
+    RISK_LEVELS.find(([limit]) => level < limit);
+
+  $("riskStatus").textContent = status;
+  $("riskDot").className = `status-dot ${dotClass}`;
+  $("riskDescription").textContent = description;
+
+  // เวลาโดยประมาณถึงระดับวิกฤต (สมมติอัตราคงที่)
+  const minutes = (CRITICAL_LEVEL - level) / rate;
+  $("timeToCritical").textContent =
+    level >= CRITICAL_LEVEL ? "ถึงเกณฑ์แล้ว"
+    : rate <= 0 ? "ประเมินไม่ได้"
+    : minutes < 1 ? "<1"
+    : minutes.toFixed(1);
 }
 
-// ปุ่มนี้เป็นการจำลองข้อมูล ไม่ได้อ่านจากเซนเซอร์จริง
-document.getElementById("refreshBtn").addEventListener(
-  "click",
-  () => {
-    previousLevel = currentLevel;
-    previousTime = Date.now();
+function updateTimestamp() {
+  $("lastUpdated").textContent = "อัปเดตล่าสุด: " + timeText(new Date(), true);
+}
 
-    // สุ่มให้ระดับน้ำเปลี่ยนแปลงทีละน้อย
-    const change = Math.random() * 6 - 2;
-    const nextLevel = Math.max(
-      0,
-      Math.min(80, currentLevel + change)
-    );
+// ---------- Events (จำลองข้อมูล ไม่ได้อ่านจากเซนเซอร์จริง) ----------
+$("refreshBtn").addEventListener("click", () => {
+  const nextLevel = clamp(currentLevel + Math.random() * 6 - 2);
+  const rate = nextLevel - currentLevel; // สมมติว่าห่างกัน 1 นาที
 
-    // ใช้เวลา 1 นาทีเป็นสมมติฐานของข้อมูลจำลอง
-    const simulatedRate = nextLevel - previousLevel;
+  updateDashboard(nextLevel, rate);
 
-    updateDashboard(nextLevel, simulatedRate);
-    updateChart(nextLevel);
-    updateTimestamp();
+  // เก็บจุดล่าสุดไม่เกิน 12 จุด
+  const labels = [...waterChart.data.labels, timeText(new Date())].slice(-12);
+  const values = [...waterChart.data.datasets[0].data, nextLevel].slice(-12);
+  setChart(labels, values);
 
-    document.getElementById("deviceStatus").textContent =
-      "Demo mode — ข้อมูลจำลอง";
+  updateTimestamp();
+});
+
+$("waterPeriod").addEventListener("change", e => {
+  const hours = Number(e.target.value);
+  const count = hours === 1 ? 6 : hours === 6 ? 8 : 12;
+  const stepMs = (hours * 60 / (count - 1)) * 60000;
+  const now = Date.now();
+
+  const labels = [];
+  const values = [];
+  for (let i = count - 1; i >= 0; i--) {
+    labels.push(timeText(new Date(now - i * stepMs)));
+    values.push(clamp(currentLevel - i * 1.5 + Math.random() * 3));
   }
-);
+  setChart(labels, values);
+});
 
-// เปลี่ยนช่วงเวลาที่แสดงในกราฟ
-document.getElementById("waterPeriod").addEventListener(
-  "change",
-  event => {
-    const hours = Number(event.target.value);
-
-    // สร้างข้อมูลตัวอย่างสำหรับช่วงเวลาที่เลือก
-    const count = hours === 1 ? 6 : hours === 6 ? 8 : 12;
-    const now = new Date();
-
-    const newLabels = [];
-    const newValues = [];
-
-    for (let i = count - 1; i >= 0; i--) {
-      const pointTime = new Date(
-        now.getTime() - i * (hours * 60 / (count - 1)) * 60000
-      );
-
-      newLabels.push(
-        pointTime.toLocaleTimeString("th-TH", {
-          hour: "2-digit",
-          minute: "2-digit"
-        })
-      );
-
-      newValues.push(
-        Math.max(0, Math.min(80,
-          currentLevel - i * 1.5 + Math.random() * 3
-        ))
-      );
-    }
-
-    waterChart.data.labels = newLabels;
-    waterChart.data.datasets[0].data = newValues;
-    waterChart.data.datasets[1].data =
-      newValues.map(() => CRITICAL_LEVEL);
-
-    waterChart.update();
-  }
-);
-
-// เริ่มต้นด้วยข้อมูลจำลอง
+// ---------- Init ----------
 updateDashboard(35, 2);
 updateTimestamp();
