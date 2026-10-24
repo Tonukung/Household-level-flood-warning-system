@@ -4,46 +4,263 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FloodWatch</title>
+  <title>FloodWatch | Smart Flood Monitoring</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header>
-    <h1>🌊 FloodWatch</h1>
-    <p>Smart Flood Monitoring System</p>
-  </header>
+  <aside class="sidebar">
+    <a href="#" class="brand">
+      <span class="brand-icon">≈</span>
+      <span>Flood<span class="brand-light">Watch</span></span>
+    </a>
 
-  <main>
-    <section class="dashboard">
-      <article class="card">
-        <h2>ระดับน้ำปัจจุบัน</h2>
-        <p><span id="waterLevel">35</span> cm</p>
+    <p class="menu-label">MAIN MENU</p>
+    <a class="nav-link active" href="#overview">▦ <span>Dashboard</span></a>
+    <a class="nav-link" href="#water">≋ <span>Water Level</span></a>
+    <a class="nav-link" href="#quality">◉ <span>Water Quality</span></a>
+    <a class="nav-link" href="#alerts">♧ <span>Alert History</span></a>
+
+    <div class="sidebar-bottom">
+      <div class="device-mini">
+        <span class="online-dot"></span>
+        <div>
+          <strong>Flood Station 01</strong>
+          <small>Demo mode</small>
+        </div>
+      </div>
+      <p>Smart Flood Monitoring System</p>
+    </div>
+  </aside>
+
+  <main class="main-content" id="overview">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MONITORING CENTER / OVERVIEW</p>
+        <h1>Flood Monitoring Dashboard</h1>
+        <p class="subtitle">ติดตามระดับน้ำและคุณภาพน้ำในพื้นที่ของคุณ</p>
+      </div>
+      <div class="header-right">
+        <span class="demo-badge">● DEMO DATA</span>
+        <div class="date-label" id="lastUpdated">กำลังโหลด...</div>
+      </div>
+    </header>
+
+    <section class="welcome-banner">
+      <div>
+        <p class="banner-label">FLOODWATCH MONITORING SYSTEM</p>
+        <h2>Stay informed. Stay safe.</h2>
+        <p>ระบบเฝ้าระวังระดับน้ำและตรวจติดตามค่าจากเซนเซอร์</p>
+      </div>
+      <div class="wave-art" aria-hidden="true">〰</div>
+    </section>
+
+    <section class="section-heading">
+      <div>
+        <h2>สถานการณ์ปัจจุบัน</h2>
+        <p>Current environmental conditions</p>
+      </div>
+      <button class="refresh-btn" id="refreshBtn">↻ ทดลองอัปเดต</button>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-top">
+          <span class="stat-icon blue">≋</span>
+          <span class="mini-label">WATER LEVEL</span>
+        </div>
+        <p class="stat-title">ระดับน้ำปัจจุบัน</p>
+        <div class="metric">
+          <strong id="waterLevel">35</strong><span>cm</span>
+        </div>
+        <p class="stat-foot">จากจุดตรวจวัดจำลอง</p>
       </article>
 
-      <article class="card">
-        <h2>สถานะความเสี่ยง</h2>
-        <p id="riskStatus">เฝ้าระวัง</p>
+      <article class="stat-card">
+        <div class="stat-top">
+          <span class="stat-icon amber">⚠</span>
+          <span class="mini-label">FLOOD STATUS</span>
+        </div>
+        <p class="stat-title">สถานะความเสี่ยง</p>
+        <div class="status-line">
+          <span class="status-dot warning" id="riskDot"></span>
+          <strong id="riskStatus">เฝ้าระวัง</strong>
+        </div>
+        <p class="stat-foot" id="riskDescription">ควรติดตามระดับน้ำอย่างใกล้ชิด</p>
       </article>
 
-      <article class="card">
-        <h2>อัตราการเพิ่มขึ้น</h2>
-        <p id="waterRate">+2 cm/min</p>
+      <article class="stat-card">
+        <div class="stat-top">
+          <span class="stat-icon purple">↗</span>
+          <span class="mini-label">RISING RATE</span>
+        </div>
+        <p class="stat-title">อัตราการเปลี่ยนแปลง</p>
+        <div class="metric">
+          <strong id="waterRate">+2.0</strong><span>cm/min</span>
+        </div>
+        <p class="stat-foot">คำนวณจากข้อมูลจำลอง</p>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-top">
+          <span class="stat-icon teal">◷</span>
+          <span class="mini-label">ESTIMATED TIME</span>
+        </div>
+        <p class="stat-title">เวลาโดยประมาณถึงระดับวิกฤต</p>
+        <div class="metric">
+          <strong id="timeToCritical">12.5</strong><span>min</span>
+        </div>
+        <p class="stat-foot">สมมติอัตราการเพิ่มคงที่</p>
       </article>
     </section>
 
-    <section class="card">
-      <h2>กราฟระดับน้ำย้อนหลัง</h2>
-      <canvas id="waterChart"></canvas>
+    <section class="content-grid">
+      <article class="panel chart-panel" id="water">
+        <div class="panel-heading">
+          <div>
+            <h2>Water Level History</h2>
+            <p>แนวโน้มระดับน้ำย้อนหลัง</p>
+          </div>
+          <select id="waterPeriod" aria-label="ช่วงเวลาระดับน้ำ">
+            <option value="1">1 ชั่วโมง</option>
+            <option value="6">6 ชั่วโมง</option>
+            <option value="24">24 ชั่วโมง</option>
+          </select>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="waterChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-dot blue-dot"></span>
+          ระดับน้ำ (cm)
+          <span class="threshold-key"></span>
+          ระดับวิกฤตตัวอย่าง
+        </div>
+      </article>
+
+      <article class="panel quality-panel" id="quality">
+        <div class="panel-heading">
+          <div>
+            <h2>Water Quality Indicator</h2>
+            <p>ค่าจากเซนเซอร์แก๊ส</p>
+          </div>
+          <span class="neutral-badge">PREVIEW</span>
+        </div>
+
+        <div class="quality-reading">
+          <div>
+            <p class="reading-label">Gas sensor reading</p>
+            <div class="metric">
+              <strong id="gasValue">420</strong>
+              <span id="gasUnit">raw</span>
+            </div>
+          </div>
+          <span class="stat-icon teal big-icon">◉</span>
+        </div>
+
+        <div class="quality-note">
+          <strong id="gasStatus">รอเกณฑ์ประเมิน</strong>
+          <p id="gasDescription">
+            ค่านี้เป็นข้อมูลจำลอง ยังไม่สามารถสรุปความเน่าของน้ำได้
+          </p>
+        </div>
+
+        <div class="quality-details">
+          <div>
+            <span>Sensor</span>
+            <strong id="gasSensorName">Gas Sensor</strong>
+          </div>
+          <div>
+            <span>Data status</span>
+            <strong id="gasConnection">Demo mode</strong>
+          </div>
+        </div>
+
+        <p class="disclaimer">
+          หมายเหตุ: ค่าเซนเซอร์แก๊สเพียงอย่างเดียวไม่ใช่ผลยืนยันคุณภาพน้ำ
+        </p>
+      </article>
     </section>
 
-    <section class="card">
-      <h2>สถานะเซนเซอร์</h2>
-      <p id="deviceStatus">Demo Mode</p>
-      <p id="lastUpdated">ยังไม่ได้รับข้อมูลจริง</p>
+    <section class="bottom-grid">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Monitoring Devices</h2>
+            <p>สถานะอุปกรณ์ตรวจวัด</p>
+          </div>
+          <span class="neutral-badge">1 STATION</span>
+        </div>
+
+        <div class="device-row">
+          <div class="device-icon">⌁</div>
+          <div class="device-info">
+            <strong>Arduino UNO R4 WiFi</strong>
+            <span>Flood Station 01</span>
+          </div>
+          <span class="demo-badge">DEMO</span>
+        </div>
+        <div class="device-row">
+          <div class="device-icon">≋</div>
+          <div class="device-info">
+            <strong>Water Level Sensor</strong>
+            <span>Ultrasonic Sensor</span>
+          </div>
+          <span class="neutral-badge">PLANNED</span>
+        </div>
+        <div class="device-row">
+          <div class="device-icon">◉</div>
+          <div class="device-info">
+            <strong>Gas Sensor</strong>
+            <span>Water quality indicator</span>
+          </div>
+          <span class="neutral-badge">PLANNED</span>
+        </div>
+      </article>
+
+      <article class="panel" id="alerts">
+        <div class="panel-heading">
+          <div>
+            <h2>Recent Alerts</h2>
+            <p>ประวัติสถานการณ์จำลอง</p>
+          </div>
+          <span class="alert-count" id="alertCount">3 events</span>
+        </div>
+        <div class="alert-list" id="alertList">
+          <div class="alert-item">
+            <span class="alert-symbol amber-text">!</span>
+            <div>
+              <strong>ระดับน้ำอยู่ในช่วงเฝ้าระวัง</strong>
+              <p>ระดับน้ำจำลอง 35 cm</p>
+            </div>
+            <time>10:20</time>
+          </div>
+          <div class="alert-item">
+            <span class="alert-symbol blue-text">↗</span>
+            <div>
+              <strong>ตรวจพบแนวโน้มน้ำเพิ่มขึ้น</strong>
+              <p>ข้อมูลตัวอย่างจากกราฟ</p>
+            </div>
+            <time>10:15</time>
+          </div>
+          <div class="alert-item">
+            <span class="alert-symbol teal-text">i</span>
+            <div>
+              <strong>เริ่มต้นระบบตรวจวัด</strong>
+              <p>เว็บไซต์ทำงานใน Demo mode</p>
+            </div>
+            <time>10:00</time>
+          </div>
+        </div>
+      </article>
     </section>
+
+    <footer>
+      FloodWatch · Smart Flood Monitoring System
+      <span>Prototype for academic project</span>
+    </footer>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
