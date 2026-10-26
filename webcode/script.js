@@ -259,3 +259,46 @@ fetchJson("/api/config")
     $("mqttConnection").className = "demo-badge offline";
     $("lastUpdated").textContent = "เชื่อมต่อ backend ไม่ได้";
   });
+
+const navLinks = document.querySelectorAll(".nav-link");
+
+navLinks.forEach(link => {
+  link.addEventListener("click", () => {
+    // เอาสถานะ active ออกจากทุกเมนู
+    navLinks.forEach(item => {
+      item.classList.remove("active");
+    });
+
+    // เพิ่มสถานะ active ให้เมนูที่คลิก
+    link.classList.add("active");
+  });
+});
+
+const sidebar = document.querySelector(".sidebar");
+const menuToggle = document.getElementById("menuToggle");
+const mobileMenuLinks = document.querySelectorAll(".nav-link");
+
+menuToggle.addEventListener("click", () => {
+  const isOpen = sidebar.classList.toggle("menu-open");
+
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  menuToggle.textContent = isOpen ? "✕" : "☰";
+});
+
+mobileMenuLinks.forEach(link => {
+  link.addEventListener("click", () => {
+    // เปลี่ยนเมนูที่ถูกเลือก
+    mobileMenuLinks.forEach(item => {
+      item.classList.remove("active");
+    });
+
+    link.classList.add("active");
+
+    // พับเมนูหลังเลือก เมื่อใช้หน้าจอมือถือ
+    if (window.matchMedia("(max-width: 700px)").matches) {
+      sidebar.classList.remove("menu-open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      menuToggle.textContent = "☰";
+    }
+  });
+});

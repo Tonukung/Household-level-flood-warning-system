@@ -98,8 +98,38 @@ canvas { max-width: 100%; }
   transition: 0.2s;
 }
 
-.nav-link:hover, .nav-link.active { background: #234666; color: #fff; }
-.nav-link.active { box-shadow: inset 3px 0 #58b4ff; }
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 13px;
+  margin-bottom: 5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #b5c3d4;
+  text-decoration: none;
+  transition: background 0.2s ease,
+              border-color 0.2s ease,
+              color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.nav-link:hover {
+  background: #1c3b59;
+  color: #fff;
+}
+
+.nav-link.active {
+  background: #234666;
+  border-color: #3c6b91;
+  color: #fff;
+  box-shadow: inset 3px 0 #58b4ff;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid #83c6ff;
+  outline-offset: 2px;
+}
 
 .sidebar-bottom { margin-top: auto; }
 
@@ -466,4 +496,82 @@ footer {
   .metric strong { font-size: 22px; }
   .nav-link { padding: 9px 7px; font-size: 11px; }
   .panel { padding: 13px 9px; }
+}
+
+
+/* Sidebar header */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.menu-toggle {
+  display: none;
+  border: 1px solid #3c5875;
+  background: #203c58;
+  color: white;
+  border-radius: 9px;
+  width: 42px;
+  height: 42px;
+  font-size: 21px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menu-content {
+  display: block;
+}
+
+/* Mobile collapsible menu */
+@media (max-width: 700px) {
+  .sidebar {
+    padding: 14px 16px;
+  }
+
+  .sidebar-header {
+    width: 100%;
+  }
+
+  .brand {
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+  }
+
+  .menu-toggle {
+    display: grid;
+    place-items: center;
+  }
+
+  .menu-content {
+    display: none;
+    padding-top: 18px;
+  }
+
+  .sidebar.menu-open .menu-content {
+    display: block;
+  }
+
+  .menu-label {
+    margin-top: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    margin: 0 0 5px;
+    padding: 12px;
+  }
+
+  .sidebar-bottom {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
 }
