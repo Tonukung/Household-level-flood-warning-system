@@ -23,10 +23,10 @@
 
     <div class="sidebar-bottom">
       <div class="device-mini">
-        <span class="online-dot"></span>
+        <span class="online-dot offline" id="deviceDot"></span>
         <div>
           <strong>Flood Station 01</strong>
-          <small>Demo mode</small>
+          <small id="deviceMiniStatus">กำลังเชื่อมต่อ</small>
         </div>
       </div>
       <p>Smart Flood Monitoring System</p>
@@ -41,7 +41,7 @@
         <p class="subtitle">ติดตามระดับน้ำและคุณภาพน้ำในพื้นที่ของคุณ</p>
       </div>
       <div class="header-right">
-        <span class="demo-badge">● DEMO DATA</span>
+        <span class="demo-badge connection-offline" id="mqttConnection">MQTT กำลังเชื่อมต่อ</span>
         <div class="date-label" id="lastUpdated">กำลังโหลด...</div>
       </div>
     </header>
@@ -60,7 +60,7 @@
         <h2>สถานการณ์ปัจจุบัน</h2>
         <p>Current environmental conditions</p>
       </div>
-      <button class="refresh-btn" id="refreshBtn">↻ ทดลองอัปเดต</button>
+      <button class="refresh-btn" id="refreshBtn">↻ โหลดข้อมูลล่าสุด</button>
     </section>
 
     <section class="stats-grid">
@@ -73,7 +73,7 @@
         <div class="metric">
           <strong id="waterLevel">35</strong><span>cm</span>
         </div>
-        <p class="stat-foot">จากจุดตรวจวัดจำลอง</p>
+        <p class="stat-foot" id="waterSourceNote">รอข้อมูลจากเซนเซอร์</p>
       </article>
 
       <article class="stat-card">
@@ -98,7 +98,7 @@
         <div class="metric">
           <strong id="waterRate">+2.0</strong><span>cm/min</span>
         </div>
-        <p class="stat-foot">คำนวณจากข้อมูลจำลอง</p>
+        <p class="stat-foot">คำนวณจากข้อมูลจริงล่าสุด</p>
       </article>
 
       <article class="stat-card">
@@ -134,7 +134,7 @@
           <span class="legend-dot blue-dot"></span>
           ระดับน้ำ (cm)
           <span class="threshold-key"></span>
-          ระดับวิกฤตตัวอย่าง
+          <span id="thresholdLegend">ระดับวิกฤต</span>
         </div>
       </article>
 
@@ -144,7 +144,7 @@
             <h2>Water Quality Indicator</h2>
             <p>ค่าจากเซนเซอร์แก๊ส</p>
           </div>
-          <span class="neutral-badge">PREVIEW</span>
+          <span class="neutral-badge" id="gasPreviewBadge">MQTT</span>
         </div>
 
         <div class="quality-reading">
@@ -161,18 +161,18 @@
         <div class="quality-note">
           <strong id="gasStatus">รอเกณฑ์ประเมิน</strong>
           <p id="gasDescription">
-            ค่านี้เป็นข้อมูลจำลอง ยังไม่สามารถสรุปความเน่าของน้ำได้
+            ค่านี้เป็นค่าดิบจาก MQ-135 ไม่ใช่ผลยืนยันคุณภาพน้ำ
           </p>
         </div>
 
         <div class="quality-details">
           <div>
             <span>Sensor</span>
-            <strong id="gasSensorName">Gas Sensor</strong>
+            <strong id="gasSensorName">MQ-135</strong>
           </div>
           <div>
             <span>Data status</span>
-            <strong id="gasConnection">Demo mode</strong>
+            <strong id="gasConnection">รอข้อมูล</strong>
           </div>
         </div>
 
@@ -198,7 +198,7 @@
             <strong>Arduino UNO R4 WiFi</strong>
             <span>Flood Station 01</span>
           </div>
-          <span class="demo-badge">DEMO</span>
+          <span class="demo-badge" id="deviceStatus">OFFLINE</span>
         </div>
         <div class="device-row">
           <div class="device-icon">≋</div>
@@ -206,7 +206,7 @@
             <strong>Water Level Sensor</strong>
             <span>Ultrasonic Sensor</span>
           </div>
-          <span class="neutral-badge">PLANNED</span>
+          <span class="neutral-badge" id="waterSensorStatus">รอข้อมูล</span>
         </div>
         <div class="device-row">
           <div class="device-icon">◉</div>
@@ -214,7 +214,7 @@
             <strong>Gas Sensor</strong>
             <span>Water quality indicator</span>
           </div>
-          <span class="neutral-badge">PLANNED</span>
+          <span class="neutral-badge" id="gasSensorStatus">รอข้อมูล</span>
         </div>
       </article>
 
@@ -222,36 +222,11 @@
         <div class="panel-heading">
           <div>
             <h2>Recent Alerts</h2>
-            <p>ประวัติสถานการณ์จำลอง</p>
+            <p>ประวัติการแจ้งเตือนจากเซนเซอร์</p>
           </div>
-          <span class="alert-count" id="alertCount">3 events</span>
+          <span class="alert-count" id="alertCount">0 events</span>
         </div>
-        <div class="alert-list" id="alertList">
-          <div class="alert-item">
-            <span class="alert-symbol amber-text">!</span>
-            <div>
-              <strong>ระดับน้ำอยู่ในช่วงเฝ้าระวัง</strong>
-              <p>ระดับน้ำจำลอง 35 cm</p>
-            </div>
-            <time>10:20</time>
-          </div>
-          <div class="alert-item">
-            <span class="alert-symbol blue-text">↗</span>
-            <div>
-              <strong>ตรวจพบแนวโน้มน้ำเพิ่มขึ้น</strong>
-              <p>ข้อมูลตัวอย่างจากกราฟ</p>
-            </div>
-            <time>10:15</time>
-          </div>
-          <div class="alert-item">
-            <span class="alert-symbol teal-text">i</span>
-            <div>
-              <strong>เริ่มต้นระบบตรวจวัด</strong>
-              <p>เว็บไซต์ทำงานใน Demo mode</p>
-            </div>
-            <time>10:00</time>
-          </div>
-        </div>
+        <div class="alert-list" id="alertList"></div>
       </article>
     </section>
 

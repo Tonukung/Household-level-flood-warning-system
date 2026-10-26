@@ -1,0 +1,15 @@
+{
+  "name": "floodwatch-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MQTT backend and SQLite history for FloodWatch",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "mqtt": "^5.14.1"
+  }
+}

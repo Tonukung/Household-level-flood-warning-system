@@ -173,6 +173,7 @@ h1 {
 .demo-badge { background: #e4f7ed; color: #16825b; }
 .neutral-badge { background: #f0f3f7; color: #75859a; }
 .alert-count { background: #fff3df; color: #ba7b17; }
+.connection-offline, .demo-badge.offline { background: #f0f3f7; color: #75859a; }
 
 /* ---------- Banner ---------- */
 .welcome-banner {
@@ -267,6 +268,8 @@ h1 {
 .status-dot.warning { background: #e7a22c; box-shadow: 0 0 0 4px #fff4df; }
 .status-dot.danger  { background: #e05252; box-shadow: 0 0 0 4px #ffe7e7; }
 .status-dot.normal  { background: #25ad7b; box-shadow: 0 0 0 4px #e3f8ee; }
+.status-dot.offline { background: #9aa7b6; box-shadow: 0 0 0 4px #f0f3f7; }
+.online-dot.offline { background: #9aa7b6; }
 
 .content-grid, .bottom-grid {
   display: grid;
