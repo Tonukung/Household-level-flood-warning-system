@@ -367,3 +367,22 @@ function connectMQTT() {
 }
 
 connectMQTT();
+
+// ---------- MOBILE MENU ----------
+const menuToggle = $("menuToggle");
+const sidebar = document.querySelector(".sidebar");
+
+menuToggle.addEventListener("click", () => {
+  const isOpen = sidebar.classList.toggle("menu-open");
+
+  menuToggle.setAttribute("aria-expanded", isOpen);
+});
+
+const menuLinks = document.querySelectorAll(".nav-link");
+
+menuLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    sidebar.classList.remove("menu-open");
+    menuToggle.setAttribute("aria-expanded", "false");
+  });
+});
