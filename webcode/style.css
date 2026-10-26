@@ -98,8 +98,38 @@ canvas { max-width: 100%; }
   transition: 0.2s;
 }
 
-.nav-link:hover, .nav-link.active { background: #234666; color: #fff; }
-.nav-link.active { box-shadow: inset 3px 0 #58b4ff; }
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 13px;
+  margin-bottom: 5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #b5c3d4;
+  text-decoration: none;
+  transition: background 0.2s ease,
+              border-color 0.2s ease,
+              color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.nav-link:hover {
+  background: #1c3b59;
+  color: #fff;
+}
+
+.nav-link.active {
+  background: #234666;
+  border-color: #3c6b91;
+  color: #fff;
+  box-shadow: inset 3px 0 #58b4ff;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid #83c6ff;
+  outline-offset: 2px;
+}
 
 .sidebar-bottom { margin-top: auto; }
 

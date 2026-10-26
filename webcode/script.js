@@ -259,3 +259,18 @@ fetchJson("/api/config")
     $("mqttConnection").className = "demo-badge offline";
     $("lastUpdated").textContent = "เชื่อมต่อ backend ไม่ได้";
   });
+
+const navLinks = document.querySelectorAll(".nav-link");
+
+navLinks.forEach(link => {
+  link.addEventListener("click", () => {
+    // เอาสถานะ active ออกจากทุกเมนู
+    navLinks.forEach(item => {
+      item.classList.remove("active");
+    });
+
+    // เพิ่มสถานะ active ให้เมนูที่คลิก
+    link.classList.add("active");
+  });
+});
+
