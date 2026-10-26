@@ -119,11 +119,11 @@ function updateRiskStatus(level) {
   } else if (level > FLOOD_WARNING_LEVEL) {
     riskStatus.textContent = "เฝ้าระวัง";
     riskDot.className = "status-dot warning";
-    description.textContent = "ระดับน้ำเกิน 8 cm ควรติดตามสถานการณ์";
+    description.textContent = "";
   } else {
     riskStatus.textContent = "ปกติ";
     riskDot.className = "status-dot normal";
-    description.textContent = "ระดับน้ำยังไม่เกินเกณฑ์ 8 cm";
+    description.textContent = "";
   }
 }
 
@@ -218,7 +218,7 @@ client.onMessageArrived = function (message) {
       calculateWaterRate(level, timestamp);
 
       $("waterLevel").textContent = level.toFixed(1);
-      $("waterSourceNote").textContent = "รับข้อมูลจากเซนเซอร์แล้ว";
+      $("waterSourceNote").textContent = "";
       $("waterSensorStatus").textContent = "รับข้อมูลแล้ว";
 
       updateRiskStatus(level);
