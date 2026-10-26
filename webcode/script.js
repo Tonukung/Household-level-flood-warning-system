@@ -111,6 +111,13 @@ function updateRiskStatus(level) {
   const riskStatus = $("riskStatus");
   const riskDot = $("riskDot");
   const description = $("riskDescription");
+  const waterLevelCard = $("waterLevelCard");
+
+  if (level >= FLOOD_WARNING_LEVEL) {
+    waterLevelCard.classList.add("water-warning");
+  } else {
+    waterLevelCard.classList.remove("water-warning");
+  }
 
   if (level >= FLOOD_CRITICAL_LEVEL) {
     riskStatus.textContent = "วิกฤต";

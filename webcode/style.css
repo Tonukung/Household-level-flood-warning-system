@@ -583,3 +583,32 @@ footer {
   font-size: 10px;
   line-height: 1.6;
 }
+
+/* ---------- Water Level Corner Alert ---------- */
+#waterLevelCard {
+  position: relative;
+  overflow: hidden;
+}
+
+#waterLevelCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 3px solid transparent;
+  pointer-events: none;
+}
+
+#waterLevelCard.water-warning::before {
+  animation: waterCornerBlink 1s infinite;
+}
+
+@keyframes waterCornerBlink {
+  0%, 100% {
+    border-color: transparent;
+  }
+
+  50% {
+    border-color: #e05252;
+  }
+}
