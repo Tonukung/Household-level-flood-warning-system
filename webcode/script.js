@@ -1,18 +1,31 @@
-const $ = id => document.getElementById(id);
 
-// --- ตั้งค่า MQTT สำหรับหน้าเว็บ (ใช้พอร์ต WebSocket 8884 และ SSL) ---
-const MQTTbroker = 'mqtt-dashboard.com';
+const $ = (id) => document.getElementById(id);
+
+// ---------- MQTT SETTINGS ----------
+const MQTTbroker = "mqtt-dashboard.com";
 const MQTTport = 8884;
-const MQTTsubscribeTopic = 'floodwatch/demo/station-01/telemetry';
+const MQTTsubscribeTopic = "floodwatch/demo/station-01/telemetry";
 
-// สร้าง Client ID สุ่มสำหรับเว็บ
-const client = new Paho.MQTT.Client(MQTTbroker, MQTTport, "web_client_" + parseInt(Math.random() * 1000, 10));
+const client = new Paho.MQTT.Client(
+  MQTTbroker,
+  MQTTport,
+  "web_client_" + Math.random().toString(16).slice(2)
+);
 
-let waterReadingsHistory = []; // เก็บข้อมูลประวัติทั้งหมดพร้อม timestamp
-let lastMessageTime = 0;       // เก็บเวลาที่ได้รับข้อมูลล่าสุด
-const OFFLINE_TIMEOUT = 10000; // กำหนด 10 วินาทีถ้าไม่มีข้อมูลถือว่า Offline
+// ---------- SETTINGS ----------
+const FLOOD_WARNING_LEVEL = 8;  // ระดับน้ำเฝ้าระวัง (cm)
+const FLOOD_CRITICAL_LEVEL = 50; // ระดับน้ำวิกฤต (cm)
+const ALERT_INTERVAL = 3 * 60 * 1000; // แจ้งเตือนซ้ำทุก 3 นาที
+const OFFLINE_TIMEOUT = 4 * 60 * 1000; // รอข้อมูลได้นาน 4 นาที
 
-// ตั้งค่ากราฟ Chart.js
+let waterReadingsHistory = [];
+let lastMessageTime = 0;
+let lastWaterReading = null;
+let lastAlertTime = 0;
+let currentWaterLevel = null;
+let wasAboveWarningLevel = false;
+
+// ---------- WATER LEVEL CHART ----------
 const waterChart = new Chart($("waterChart"), {
   type: "line",
   data: {
@@ -34,192 +47,92 @@ const waterChart = new Chart($("waterChart"), {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      x: { grid: { display: false }, ticks: { color: "#8997a8" } },
-      y: { beginAtZero: true, ticks: { color: "#8997a8" } }
+      x: {
+        grid: { display: false },
+        ticks: { color: "#8997a8" }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: { color: "#8997a8" }
+      }
     }
   }
 });
 
-// ฟังก์ชันอัปเดตกราฟโดยกรองตามช่วงเวลาที่เลือก (1, 5 หรือ 10 นาที)
+// ---------- UPDATE CHART ----------
 function updateChartFilter() {
-  const selectedMinutes = parseInt($("waterPeriod").value, 10); 
-  const now = new Date().getTime();
-  const cutoffTime = now - (selectedMinutes * 60 * 1000);
+  const selectedMinutes = Number($("waterPeriod").value);
+  const cutoffTime = Date.now() - selectedMinutes * 60 * 1000;
 
-  const filteredData = waterReadingsHistory.filter(item => item.timestamp >= cutoffTime);
+  const filteredData = waterReadingsHistory.filter(
+    (item) => item.timestamp >= cutoffTime
+  );
 
-  waterChart.data.labels = filteredData.map(item => item.timeString);
-  waterChart.data.datasets[0].data = filteredData.map(item => item.level);
+  waterChart.data.labels = filteredData.map((item) => item.timeString);
+  waterChart.data.datasets[0].data = filteredData.map((item) => item.level);
   waterChart.update();
 }
 
-// ฟังก์ชันเมื่อการเชื่อมต่อ MQTT หลุด
-client.onConnectionLost = function (responseObject) {
-  console.log("Connection lost: " + responseObject.errorMessage);
-  $("mqttConnection").textContent = "MQTT OFFLINE";
-  $("mqttConnection").className = "demo-badge offline";
-  // หมายเหตุ: เราไม่เคลียร์ค่าตัวเลขหน้าจอ เพื่อให้ค่าล่าสุดค้างไว้
-};
-
-// ฟังก์ชันเมื่อมีข้อความส่งมาจาก Arduino ผ่าน MQTT
-client.onMessageArrived = function (message) {
-  console.log("Received payload: " + message.payloadString);
-
-  try {
-    const data = JSON.parse(message.payloadString);
-    const now = new Date();
-    const timeString = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-
-    // บันทึกเวลาที่ได้รับข้อมูลล่าสุด
-    lastMessageTime = now.getTime();
-
-    // 1. อัปเดตสถานะเชื่อมต่อบนเว็บเป็น ONLINE
-    $("mqttConnection").textContent = "MQTT ONLINE";
-    $("mqttConnection").className = "demo-badge";
-    $("deviceStatus").textContent = "ONLINE";
-    $("deviceStatus").className = "demo-badge";
-    $("lastUpdated").textContent = `อัปเดตล่าสุด: ${timeString}`;
-
-
-    if (
-      typeof data.waterLevelCm === "number" &&
-      Number.isFinite(data.waterLevelCm)
-    ) {
-      const level = data.waterLevelCm;
-
-      // อัปเดตระดับน้ำปัจจุบัน
-      $("waterLevel").textContent = level.toFixed(1);
-      $("waterSourceNote").textContent = "รับข้อมูลจากเซนเซอร์แล้ว";
-
-      // ตรวจสอบว่าเกิน 8 cm หรือไม่
-      const isAboveWarning = level > FLOOD_WARNING_LEVEL;
-
-      if (isAboveWarning) {
-        $("riskStatus").textContent = "เฝ้าระวัง";
-        $("riskDot").className = "status-dot warning";
-        $("riskDescription").textContent =
-          "ระดับน้ำเกิน 8 cm ควรติดตามสถานการณ์";
-
-        // สร้างแจ้งเตือนเฉพาะตอนเริ่มเกินเกณฑ์
-        if (wasAboveWarningLevel !== true) {
-          addFloodAlert(level);
-        }
-      } else {
-        $("riskStatus").textContent = "ปกติ";
-        $("riskDot").className = "status-dot normal";
-        $("riskDescription").textContent =
-          "ระดับน้ำยังไม่เกินเกณฑ์ 8 cm";
-      }
-
-      // จำสถานะไว้ตรวจสอบข้อมูลครั้งถัดไป
-      wasAboveWarningLevel = isAboveWarning;
-
-      // บันทึกข้อมูลลงกราฟ
-      const now = new Date();
-
-      waterReadingsHistory.push({
-        timestamp: now.getTime(),
-        timeString: now.toLocaleTimeString("th-TH", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false
-        }),
-        level: level
-      });
-
-      // เก็บประวัติกราฟย้อนหลังไม่เกิน 15 นาที
-      const maxAgeTime = now.getTime() - 15 * 60 * 1000;
-
-      waterReadingsHistory = waterReadingsHistory.filter(
-        item => item.timestamp >= maxAgeTime
-      );
-
-      updateChartFilter();
-    }
-
-
-    // 3. อัปเดตค่าเซนเซอร์แก๊ส MQ-135
-    if (data.gasAdc !== undefined) {
-      $("gasValue").textContent = data.gasAdc;
-      $("gasConnection").textContent = "รับข้อมูลแล้ว";
-      $("gasSensorStatus").textContent = "รับข้อมูลแล้ว";
-    }
-
-    // 4. บันทึกข้อมูลลงในประวัติพร้อม Timestamp
-    waterReadingsHistory.push({
-      timestamp: now.getTime(),
-      timeString: timeString,
-      level: data.waterLevelCm
-    });
-
-    const maxAgeTime = now.getTime() - (15 * 60 * 1000);
-    waterReadingsHistory = waterReadingsHistory.filter(item => item.timestamp >= maxAgeTime);
-
-    updateChartFilter();
-
-  } catch (e) {
-    console.error("Failed to parse JSON message:", e);
+// ---------- CALCULATE WATER RATE ----------
+function calculateWaterRate(level, timestamp) {
+  if (lastWaterReading === null) {
+    $("waterRate").textContent = "--";
+    $("timeToCritical").textContent = "--";
+    return;
   }
-};
 
-// ตัวตรวจสอบสถานะ Offline (ทำงานทุกๆ 1 วินาที)
-setInterval(() => {
-  if (lastMessageTime > 0) {
-    const elapsed = new Date().getTime() - lastMessageTime;
-    if (elapsed > OFFLINE_TIMEOUT) {
-      // ถ้าเกิน 10 วินาทีที่ไม่มีข้อมูลส่งมา ให้เปลี่ยนสถานะเป็น OFFLINE แต่ "ไม่ลบค่าตัวเลขเดิม"
-      $("deviceStatus").textContent = "OFFLINE";
-      $("deviceStatus").className = "demo-badge offline";
-    }
+  const elapsedMinutes =
+    (timestamp - lastWaterReading.timestamp) / 60000;
+
+  // ป้องกันการหารด้วยศูนย์
+  if (elapsedMinutes <= 0) {
+    return;
   }
-}, 1000);
 
-// เมื่อผู้ใช้เปลี่ยนช่วงเวลาใน Dropdown ให้รีเฟรชกราฟทันที
-$("waterPeriod").addEventListener("change", updateChartFilter);
+  // อัตราการเปลี่ยนแปลง = ระดับน้ำที่เปลี่ยน / เวลาที่ผ่านไป
+  const rate = (level - lastWaterReading.level) / elapsedMinutes;
 
-// เริ่มต้นเชื่อมต่อ MQTT Broker
-function connectMQTT() {
-  const options = {
-    timeout: 3,
-    useSSL: true,
-    onSuccess: function () {
-      console.log("MQTT Connected successfully!");
-      client.subscribe(MQTTsubscribeTopic);
-      $("mqttConnection").textContent = "MQTT ONLINE";
-      $("mqttConnection").className = "demo-badge";
-    },
-    onFailure: function (message) {
-      console.log("MQTT Connection failed: " + message.errorMessage);
-      $("mqttConnection").textContent = "MQTT OFFLINE";
-      $("mqttConnection").className = "demo-badge offline";
-      setTimeout(connectMQTT, 5000);
-    }
-  };
-  client.connect(options);
+  $("waterRate").textContent = rate.toFixed(2);
+
+  // คำนวณเวลาโดยประมาณถึงระดับวิกฤต
+  if (rate > 0 && level < FLOOD_CRITICAL_LEVEL) {
+    const minutesRemaining =
+      (FLOOD_CRITICAL_LEVEL - level) / rate;
+
+    $("timeToCritical").textContent =
+      Math.ceil(minutesRemaining);
+  } else {
+    $("timeToCritical").textContent = "--";
+  }
 }
 
-// สั่งเชื่อมต่อ MQTT ทันทีที่เปิดเว็บ
-connectMQTT();
+// ---------- UPDATE RISK STATUS ----------
+function updateRiskStatus(level) {
+  const riskStatus = $("riskStatus");
+  const riskDot = $("riskDot");
+  const description = $("riskDescription");
 
-$("refreshBtn").addEventListener("click", () => {
-  $("lastUpdated").textContent = "รีเฟรชข้อมูลเรียบร้อย";
-});
+  if (level >= FLOOD_CRITICAL_LEVEL) {
+    riskStatus.textContent = "วิกฤต";
+    riskDot.className = "status-dot danger";
+    description.textContent = "ระดับน้ำถึงเกณฑ์วิกฤตแล้ว";
+  } else if (level > FLOOD_WARNING_LEVEL) {
+    riskStatus.textContent = "เฝ้าระวัง";
+    riskDot.className = "status-dot warning";
+    description.textContent = "ระดับน้ำเกิน 8 cm ควรติดตามสถานการณ์";
+  } else {
+    riskStatus.textContent = "ปกติ";
+    riskDot.className = "status-dot normal";
+    description.textContent = "ระดับน้ำยังไม่เกินเกณฑ์ 8 cm";
+  }
+}
 
-
-const FLOOD_WARNING_LEVEL = 8;
-
-// จำสถานะระดับน้ำก่อนหน้า เพื่อป้องกันการแจ้งเตือนซ้ำ
-let wasAboveWarningLevel = null;
-
-// สร้างรายการแจ้งเตือน
+// ---------- ADD FLOOD ALERT ----------
 function addFloodAlert(waterLevel) {
   const alertList = $("alertList");
   const alertCount = $("alertCount");
-
   const now = new Date();
 
-  // วันที่และเวลาที่ตรวจพบ
   const dateTime = now.toLocaleString("th-TH", {
     day: "2-digit",
     month: "2-digit",
@@ -230,7 +143,6 @@ function addFloodAlert(waterLevel) {
     hour12: false
   });
 
-  // สร้างกล่องแจ้งเตือน
   const item = document.createElement("div");
   item.className = "alert-item";
 
@@ -245,7 +157,8 @@ function addFloodAlert(waterLevel) {
 
   const description = document.createElement("p");
   description.textContent =
-    `ตรวจพบระดับน้ำ ${waterLevel.toFixed(1)} cm ซึ่งเกินเกณฑ์ ${FLOOD_WARNING_LEVEL} cm`;
+    `ตรวจพบระดับน้ำ ${waterLevel.toFixed(1)} cm ` +
+    `เกินเกณฑ์ ${FLOOD_WARNING_LEVEL} cm`;
 
   const time = document.createElement("time");
   time.dateTime = now.toISOString();
@@ -261,7 +174,196 @@ function addFloodAlert(waterLevel) {
   // เพิ่มรายการใหม่ไว้บนสุด
   alertList.prepend(item);
 
-  // นับจำนวนรายการแจ้งเตือน
+  // เก็บสูงสุด 5 รายการ ลบรายการเก่าที่สุดออก
+  while (alertList.querySelectorAll(".alert-item").length > 5) {
+    alertList.lastElementChild.remove();
+  }
+
   alertCount.textContent =
     `${alertList.querySelectorAll(".alert-item").length} events`;
 }
+
+// ---------- HANDLE MQTT MESSAGE ----------
+client.onMessageArrived = function (message) {
+  console.log("Received payload:", message.payloadString);
+
+  try {
+    const data = JSON.parse(message.payloadString);
+    const now = new Date();
+    const timestamp = now.getTime();
+
+    lastMessageTime = timestamp;
+
+    const timeString = now.toLocaleTimeString("th-TH", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+
+    $("mqttConnection").textContent = "MQTT ONLINE";
+    $("mqttConnection").className = "demo-badge";
+    $("deviceStatus").textContent = "ONLINE";
+    $("deviceStatus").className = "demo-badge";
+    $("lastUpdated").textContent = `อัปเดตล่าสุด: ${timeString}`;
+
+    // ---------- WATER LEVEL ----------
+    if (
+      typeof data.waterLevelCm === "number" &&
+      Number.isFinite(data.waterLevelCm)
+    ) {
+      const level = data.waterLevelCm;
+
+      // คำนวณก่อนแทนที่ข้อมูลครั้งก่อน
+      calculateWaterRate(level, timestamp);
+
+      $("waterLevel").textContent = level.toFixed(1);
+      $("waterSourceNote").textContent = "รับข้อมูลจากเซนเซอร์แล้ว";
+      $("waterSensorStatus").textContent = "รับข้อมูลแล้ว";
+
+      updateRiskStatus(level);
+
+      // บันทึกประวัติระดับน้ำเพียงครั้งเดียวต่อข้อความ
+      waterReadingsHistory.push({
+        timestamp: timestamp,
+        timeString: timeString,
+        level: level
+      });
+
+      // เก็บข้อมูลกราฟย้อนหลัง 15 นาที
+      const maxAgeTime = timestamp - 15 * 60 * 1000;
+
+      waterReadingsHistory = waterReadingsHistory.filter(
+        (item) => item.timestamp >= maxAgeTime
+      );
+
+      updateChartFilter();
+
+      currentWaterLevel = level;
+
+      // บันทึกระดับน้ำล่าสุดไว้ใช้คำนวณครั้งถัดไป
+      lastWaterReading = {
+        level: level,
+        timestamp: timestamp
+      };
+
+      // แจ้งเตือนทันทีเมื่อเพิ่งข้ามเกณฑ์
+      if (level > FLOOD_WARNING_LEVEL && !wasAboveWarningLevel) {
+        addFloodAlert(level);
+        lastAlertTime = timestamp;
+      }
+
+      wasAboveWarningLevel = level > FLOOD_WARNING_LEVEL;
+    }
+
+    // ---------- GAS SENSOR ----------
+    if (
+      typeof data.gasAdc === "number" &&
+      Number.isFinite(data.gasAdc)
+    ) {
+      $("gasValue").textContent = data.gasAdc;
+      $("gasConnection").textContent = "รับข้อมูลแล้ว";
+      $("gasSensorStatus").textContent = "รับข้อมูลแล้ว";
+    }
+  } catch (error) {
+    console.error("Failed to parse MQTT JSON:", error);
+  }
+};
+
+// ---------- MQTT CONNECTION LOST ----------
+client.onConnectionLost = function (responseObject) {
+  console.log(
+    "Connection lost:",
+    responseObject.errorMessage
+  );
+
+  $("mqttConnection").textContent = "MQTT OFFLINE";
+  $("mqttConnection").className = "demo-badge offline";
+};
+
+// ---------- CHECK DEVICE STATUS & REPEAT ALERT ----------
+setInterval(() => {
+  const now = Date.now();
+
+  // ตรวจสอบว่าอุปกรณ์ขาดการส่งข้อมูลนานเกินไปหรือไม่
+  if (
+    lastMessageTime === 0 ||
+    now - lastMessageTime > OFFLINE_TIMEOUT
+  ) {
+    $("deviceStatus").textContent = "OFFLINE";
+    $("deviceStatus").className = "demo-badge offline";
+
+    $("waterSensorStatus").textContent = "ไม่มีข้อมูล";
+    $("gasSensorStatus").textContent = "ไม่มีข้อมูล";
+
+    $("mqttConnection").textContent = "รอข้อมูล";
+    $("mqttConnection").className = "demo-badge offline";
+  }
+
+  // แจ้งเตือนซ้ำทุก 3 นาทีขณะที่ระดับน้ำยังเกินเกณฑ์
+  // และข้อมูลจากอุปกรณ์ยังไม่เก่าเกินเวลาที่กำหนด
+  if (
+    currentWaterLevel !== null &&
+    currentWaterLevel > FLOOD_WARNING_LEVEL &&
+    lastMessageTime > 0 &&
+    now - lastMessageTime <= OFFLINE_TIMEOUT &&
+    now - lastAlertTime >= ALERT_INTERVAL
+  ) {
+    addFloodAlert(currentWaterLevel);
+    lastAlertTime = now;
+  }
+}, 1000);
+
+// ---------- CHART FILTER ----------
+$("waterPeriod").addEventListener("change", updateChartFilter);
+
+// ---------- REFRESH BUTTON ----------
+$("refreshBtn").addEventListener("click", () => {
+  updateChartFilter();
+
+  if (lastMessageTime > 0) {
+    $("lastUpdated").textContent =
+      `ข้อมูลล่าสุด: ${new Date(lastMessageTime).toLocaleTimeString("th-TH")}`;
+  } else {
+    $("lastUpdated").textContent = "ยังไม่ได้รับข้อมูลจากเซนเซอร์";
+  }
+});
+
+// ---------- CONNECT MQTT ----------
+function connectMQTT() {
+  if (client.isConnected()) {
+    return;
+  }
+
+  client.connect({
+    timeout: 10,
+    useSSL: true,
+
+    onSuccess: function () {
+      console.log("MQTT connected");
+
+      $("mqttConnection").textContent = "MQTT ONLINE";
+      $("mqttConnection").className = "demo-badge";
+
+      client.subscribe(MQTTsubscribeTopic, {
+        onSuccess: function () {
+          console.log("Subscribed:", MQTTsubscribeTopic);
+        },
+        onFailure: function (error) {
+          console.error("Subscribe failed:", error);
+        }
+      });
+    },
+
+    onFailure: function (error) {
+      console.error("MQTT connection failed:", error.errorMessage);
+
+      $("mqttConnection").textContent = "MQTT OFFLINE";
+      $("mqttConnection").className = "demo-badge offline";
+
+      setTimeout(connectMQTT, 5000);
+    }
+  });
+}
+
+connectMQTT();
