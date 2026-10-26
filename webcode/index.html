@@ -10,23 +10,49 @@
 </head>
 <body>
   <aside class="sidebar">
-    <a href="#" class="brand">
-      <span class="brand-icon">≈</span>
-      <span>Flood<span class="brand-light">Watch</span></span>
-    </a>
+    <div class="sidebar-header">
+      <a href="#overview" class="brand">
+        <span class="brand-icon">≈</span>
+        <span>Flood<span class="brand-light">Watch</span></span>
+      </a>
 
-    <p class="menu-label">MAIN MENU</p>
-    <a class="nav-link active" href="#overview">▦ <span>Dashboard</span></a>
-    <a class="nav-link" href="#water">≋ <span>Water Level</span></a>
-    <a class="nav-link" href="#quality">◉ <span>Water Quality</span></a>
-    <a class="nav-link" href="#alerts">♧ <span>Alert History</span></a>
+      <button
+        class="menu-toggle"
+        id="menuToggle"
+        aria-label="เปิดหรือปิดเมนู"
+        aria-expanded="false"
+        aria-controls="mainMenu"
+      >
+        ☰
+      </button>
+    </div>
+
+    <div class="menu-content" id="mainMenu">
+      <p class="menu-label">MAIN MENU</p>
+
+      <a class="nav-link active" href="#overview">
+        ▦ <span>Dashboard</span>
+      </a>
+
+      <a class="nav-link" href="#water">
+        ≋ <span>Water Level</span>
+      </a>
+
+      <a class="nav-link" href="#quality">
+        ◉ <span>Water Quality</span>
+      </a>
+
+      <a class="nav-link" href="#alerts">
+        ♧ <span>Alert History</span>
+      </a>
+    </div>
 
     <div class="sidebar-bottom">
       <div class="device-mini">
-        <span class="online-dot offline" id="deviceDot"></span>
+        <span class="online-dot"></span>
         <div>
           <strong>Flood Station 01</strong>
-          <small id="deviceMiniStatus">กำลังเชื่อมต่อ</small>
+          <small>Demo mode</small>
         </div>
       </div>
       <p>Smart Flood Monitoring System</p>
