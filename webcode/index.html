@@ -7,9 +7,7 @@
   <title>FloodWatch | Smart Flood Monitoring</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- เพิ่มไลบรารี Paho MQTT สำหรับเบราว์เซอร์ -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
-  <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -100,7 +98,7 @@
         </div>
         <p class="stat-title">ระดับน้ำปัจจุบัน</p>
         <div class="metric">
-          <strong id="waterLevel">35</strong><span>cm</span>
+          <strong id="waterLevel">--</strong><span>cm</span>
         </div>
         <p class="stat-foot" id="waterSourceNote">รอข้อมูลจากเซนเซอร์</p>
       </article>
@@ -113,7 +111,7 @@
         <p class="stat-title">สถานะความเสี่ยง</p>
         <div class="status-line">
           <span class="status-dot warning" id="riskDot"></span>
-          <strong id="riskStatus">เฝ้าระวัง</strong>
+          <strong id="riskStatus">รอข้อมูลจากเซนเซอร์</strong>
         </div>
         <p class="stat-foot" id="riskDescription">ควรติดตามระดับน้ำอย่างใกล้ชิด</p>
       </article>
@@ -125,7 +123,7 @@
         </div>
         <p class="stat-title">อัตราการเปลี่ยนแปลง</p>
         <div class="metric">
-          <strong id="waterRate">+2.0</strong><span>cm/min</span>
+          <strong id="waterRate">--</strong><span>cm/min</span>
         </div>
         <p class="stat-foot">คำนวณจากข้อมูลจริงล่าสุด</p>
       </article>
@@ -137,7 +135,7 @@
         </div>
         <p class="stat-title">เวลาโดยประมาณถึงระดับวิกฤต</p>
         <div class="metric">
-          <strong id="timeToCritical">12.5</strong><span>min</span>
+          <strong id="timeToCritical">--</strong><span>min</span>
         </div>
         <p class="stat-foot">สมมติอัตราการเพิ่มคงที่</p>
       </article>
@@ -180,7 +178,7 @@
           <div>
             <p class="reading-label">Gas sensor reading</p>
             <div class="metric">
-              <strong id="gasValue">420</strong>
+              <strong id="gasValue">--</strong>
               <span id="gasUnit">raw</span>
             </div>
           </div>
