@@ -7,6 +7,9 @@
   <title>FloodWatch | Smart Flood Monitoring</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- เพิ่มไลบรารี Paho MQTT สำหรับเบราว์เซอร์ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+  <script src="script.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -147,11 +150,11 @@
             <h2>Water Level History</h2>
             <p>แนวโน้มระดับน้ำย้อนหลัง</p>
           </div>
-          <select id="waterPeriod" aria-label="ช่วงเวลาระดับน้ำ">
-            <option value="1">1 ชั่วโมง</option>
-            <option value="6">6 ชั่วโมง</option>
-            <option value="24">24 ชั่วโมง</option>
-          </select>
+            <select id="waterPeriod" aria-label="ช่วงเวลาระดับน้ำ">
+              <option value="1">1 นาที</option>
+              <option value="5">5 นาที</option>
+              <option value="10">10 นาที</option>
+            </select>
         </div>
         <div class="chart-wrap">
           <canvas id="waterChart"></canvas>
