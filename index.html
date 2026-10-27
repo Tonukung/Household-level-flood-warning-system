@@ -3,428 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="รายงานโครงงาน FloodWatch ระบบเฝ้าระวังระดับน้ำและแจ้งเตือนน้ำท่วมระดับครัวเรือน">
   <title>FloodWatch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #172b43;
-      --muted: #62748a;
-      --blue: #1676c5;
-      --blue-dark: #0d477b;
-      --blue-pale: #eaf5ff;
-      --line: #dce7f0;
-      --surface: #fff;
-      --canvas: #f3f7fb;
-      --green: #16785c;
-      --amber: #a55b11;
-    }
-
-    * { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      background: var(--canvas);
-      color: var(--ink);
-      font: 16px/1.75 "Google Sans", sans-serif;
-    }
-
-    a { color: var(--blue-dark); }
-
-    .page {
-      width: min(100% - 32px, 1040px);
-      margin: 0 auto;
-      padding: 32px 0 56px;
-    }
-
-    .topline {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 18px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .topline a { text-decoration: none; }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
-      min-height: 330px;
-      padding: clamp(28px, 6vw, 62px);
-      border: 1px solid #ffffff24;
-      border-radius: 26px;
-      background:
-        radial-gradient(ellipse at 78% 0%, #48c7e855 0, transparent 38%),
-        radial-gradient(ellipse at 100% 100%, #1b8fc477 0, transparent 42%),
-        linear-gradient(118deg, #0b2038 0%, #103d66 54%, #126991 100%);
-      box-shadow: 0 24px 55px #123b5c26;
-      color: white;
-    }
-
-    .hero::before {
-      position: absolute;
-      z-index: -1;
-      inset: 0;
-      background-image:
-        linear-gradient(#ffffff0a 1px, transparent 1px),
-        linear-gradient(90deg, #ffffff0a 1px, transparent 1px);
-      background-size: 42px 42px;
-      content: "";
-      mask-image: linear-gradient(105deg, transparent 12%, #000 100%);
-    }
-
-    .hero::after {
-      position: absolute;
-      z-index: -1;
-      right: 3%;
-      bottom: -185px;
-      width: 390px;
-      height: 390px;
-      border: 1px solid #a8e7ff50;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at center, #8ce7ff22 0 2px, transparent 3px),
-        radial-gradient(circle at center, transparent 0 35%, #7ddfff24 35.3% 35.7%, transparent 36%),
-        radial-gradient(circle at center, transparent 0 58%, #7ddfff20 58.3% 58.7%, transparent 59%);
-      box-shadow:
-        0 0 0 18px #8ce7ff08,
-        0 0 0 44px #8ce7ff08,
-        0 0 70px #39c8ff1c;
-      content: "";
-      transform: rotate(-18deg);
-    }
-
-    .hero > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0 0 12px;
-      color: #b8e3ff;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: .12em;
-    }
-
-    .hero-label::before {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #66e3c4;
-      box-shadow: 0 0 14px #66e3c4;
-      content: "";
-    }
-
-    h1, h2, h3, p { margin-top: 0; }
-
-    h1 {
-      max-width: 690px;
-      margin-bottom: 14px;
-      font-size: clamp(30px, 5vw, 50px);
-      line-height: 1.25;
-      letter-spacing: -.025em;
-      text-wrap: balance;
-    }
-
-    .hero-copy {
-      max-width: 700px;
-      margin-bottom: 24px;
-      color: #e0f1ff;
-      font-size: 17px;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border: 1px solid #bceaff55;
-      border-radius: 999px;
-      background: linear-gradient(120deg, #ffffff1c, #ffffff08);
-      box-shadow: inset 0 1px #ffffff20, 0 8px 24px #071b2b26;
-      backdrop-filter: blur(8px);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    @media (max-width: 500px) {
-      .hero { min-height: 0; }
-      .hero::after {
-        right: -210px;
-        bottom: -245px;
-        width: 330px;
-        height: 330px;
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Google Sans", "sans-serif"]
+          }
+        }
       }
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 220px minmax(0, 1fr);
-      align-items: start;
-      gap: 28px;
-      margin-top: 28px;
-    }
-
-    .toc {
-      position: sticky;
-      top: 20px;
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface);
-    }
-
-    .toc strong {
-      display: block;
-      margin: 0 0 10px;
-      font-size: 13px;
-    }
-
-    .toc a {
-      display: block;
-      padding: 5px 0;
-      color: var(--muted);
-      font-size: 13px;
-      text-decoration: none;
-    }
-
-    .toc a:hover { color: var(--blue); }
-
-    main { min-width: 0; }
-
-    .section {
-      margin-bottom: 18px;
-      padding: clamp(20px, 4vw, 32px);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--surface);
-      scroll-margin-top: 20px;
-    }
-
-    .section h2 {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      margin-bottom: 14px;
-      font-size: 22px;
-      line-height: 1.4;
-    }
-
-    .number {
-      display: inline-grid;
-      width: 32px;
-      height: 32px;
-      flex: 0 0 32px;
-      place-items: center;
-      border-radius: 10px;
-      background: var(--blue-pale);
-      color: var(--blue-dark);
-      font-size: 14px;
-    }
-
-    .section p:last-child { margin-bottom: 0; }
-
-    .muted { color: var(--muted); }
-
-    .flow {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin: 20px 0 4px;
-    }
-
-    .flow-step {
-      min-height: 112px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 13px;
-      background: #fbfdff;
-    }
-
-    .flow-step b {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--blue-dark);
-      font-size: 14px;
-    }
-
-    .flow-step span { color: var(--muted); font-size: 13px; }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .note {
-      padding: 17px 18px;
-      border-left: 4px solid var(--blue);
-      border-radius: 0 12px 12px 0;
-      background: var(--blue-pale);
-    }
-
-    .note p { margin-bottom: 0; }
-
-    .member {
-      display: grid;
-      grid-template-columns: 72px minmax(0, 1fr);
-      align-items: center;
-      gap: 16px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .member:last-child { border-bottom: 0; padding-bottom: 0; }
-
-    .member img {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .member h3 { margin: 0; font-size: 17px; }
-    .member p { margin: 3px 0 0; color: var(--muted); font-size: 14px; }
-
-    .status-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      padding: 0;
-      list-style: none;
-    }
-
-    .status-list li {
-      padding: 13px 15px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fbfdff;
-    }
-
-    .status-list b { display: block; margin-bottom: 4px; }
-    .done { color: var(--green); }
-    .next { color: var(--amber); }
-
-    .footer {
-      padding: 8px 4px 0;
-      color: var(--muted);
-      font-size: 13px;
-      text-align: center;
-    }
-
-    @media (max-width: 760px) {
-      .layout { grid-template-columns: 1fr; gap: 14px; }
-      .toc { position: static; }
-      .toc nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; }
-      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 500px) {
-      .page { width: min(100% - 20px, 1040px); padding-top: 18px; }
-      .topline { align-items: flex-start; font-size: 11px; }
-      .hero { border-radius: 18px; }
-      .flow, .two-col, .status-list { grid-template-columns: 1fr; }
-      .member { grid-template-columns: 56px minmax(0, 1fr); gap: 12px; }
-      .member img { width: 56px; height: 56px; }
-    }
-
-    @media print {
-      body { background: #fff; }
-      .page { width: 100%; padding: 0; }
-      .topline, .toc { display: none; }
-      .hero, .section { break-inside: avoid; box-shadow: none; }
-      .layout { display: block; }
-      .section { margin-bottom: 12px; }
-      a { color: inherit; }
-    }
-  </style>
+    };
+  </script>
 </head>
-<body>
-  <div class="page">
-    <div class="topline">
+<body class="min-h-screen bg-[#f3f7fb] font-sans text-base leading-[1.75] text-[#172b43] antialiased print:bg-white">
+  <div class="mx-auto w-full max-w-[1040px] px-[10px] pt-[18px] pb-14 sm:px-4 sm:pt-8 print:w-full print:max-w-none print:px-0 print:py-0">
+    <div class="mb-[18px] flex items-start justify-between gap-4 text-[11px] font-bold uppercase tracking-[.08em] text-[#62748a] sm:items-center sm:text-[13px] print:hidden">
       <span>Physical Computing Project 2026 - IT KMITL</span>
-      <a href="webcode/index.html">เปิดหน้า Demo</a>
+      <a class="text-[#0d477b] no-underline transition hover:text-[#1676c5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1676c5]" href="webcode/index.html">เปิดหน้า Demo</a>
     </div>
 
-    <header class="hero">
-      <p class="hero-label">FLOODWATCH</p>
-      <h1>ระบบเฝ้าระวังระดับน้ำและแจ้งเตือนน้ำท่วมระดับครัวเรือน</h1>
-      <p class="hero-copy">
-        IoT สำหรับติดตามระดับน้ำบริเวณบ้านหรือถนนหน้าบ้าน พร้อมแสดงข้อมูลจากเซนเซอร์
-        และแจ้งเตือนเมื่อพบระดับน้ำหรือค่าจากเซนเซอร์แก๊สผิดปกติ
-      </p>
+    <header class="rounded-2xl border border-[#dce7f0] border-t-4 border-t-[#1676c5] bg-white px-6 py-8 shadow-sm sm:rounded-3xl sm:px-12 sm:py-11 print:break-inside-avoid print:shadow-none">
+      <div class="mb-5 flex flex-wrap items-center gap-3">
+        <span aria-hidden="true" class="grid size-[38px] shrink-0 place-items-center rounded-xl bg-[#2878cf] text-[29px] leading-none text-white">≈</span>
+        <span class="text-base font-bold tracking-tight text-[#172b43]">Flood<span class="text-[#2878cf]">Watch</span></span>
+      </div>
+        <h1 class="mb-[14px] max-w-[690px] text-[clamp(30px,5vw,50px)] font-bold leading-[1.25] tracking-[-.025em] text-[#172b43] [text-wrap:balance]">
+          ระบบตรวจวัดและเฝ้าระวังระดับน้ำบริเวณบ้านและเช็คภาวะน้ำเน่าเสีย
+        </h1>
+        <p class="mb-0 max-w-[700px] text-[17px] text-[#62748a]">
+          Residential Water Level Monitoring and Wastewater Detection System
+        </p>
     </header>
 
-    <div class="layout">
-      <aside class="toc" aria-label="สารบัญรายงาน">
-        <strong>ภายในเว็บไซต์นี้</strong>
-        <nav>
-          <a href="#goal">เป้าหมาย</a>
-          <a href="#how">วิธีทำงาน</a>
-          <a href="#progress">สิ่งที่ทำแล้ว</a>
-          <a href="#challenges">อุปสรรคและการปรับ</a>
-          <a href="#limits">ผลและข้อจำกัด</a>
-          <a href="#team">บทบาทสมาชิก</a>
+    <div class="mt-4 grid grid-cols-1 items-start gap-4 md:mt-7 md:grid-cols-[220px_minmax(0,1fr)] md:gap-7 print:block">
+      <aside class="rounded-2xl border border-[#dce7f0] bg-white p-[18px] md:sticky md:top-5 print:hidden" aria-label="สารบัญรายงาน">
+        <strong class="mb-[10px] block text-[13px]">ภายในเว็บไซต์นี้</strong>
+        <nav class="grid grid-cols-2 gap-x-[14px] md:block">
+          <a class="block py-[5px] text-[13px] text-[#62748a] no-underline transition hover:text-[#1676c5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1676c5]" href="#goal">เป้าหมาย</a>
+          <a class="block py-[5px] text-[13px] text-[#62748a] no-underline transition hover:text-[#1676c5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1676c5]" href="#how">วิธีทำงาน</a>
+          <a class="block py-[5px] text-[13px] text-[#62748a] no-underline transition hover:text-[#1676c5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1676c5]" href="#progress">สิ่งที่ทำแล้ว</a>
+          <a class="block py-[5px] text-[13px] text-[#62748a] no-underline transition hover:text-[#1676c5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1676c5]" href="#challenges">อุปสรรคและการปรับ</a>
+          <a class="block py-[5px] text-[13px] text-[#62748a] no-underline transition hover:text-[#1676c5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1676c5]" href="#limits">ผลและข้อจำกัด</a>
+          <a class="block py-[5px] text-[13px] text-[#62748a] no-underline transition hover:text-[#1676c5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1676c5]" href="#team">บทบาทสมาชิก</a>
         </nav>
       </aside>
 
-      <main>
-        <section class="section" id="goal">
-          <h2><span class="number">01</span>โจทย์และเป้าหมาย</h2>
+      <main class="min-w-0 space-y-[18px]">
+        <section class="scroll-mt-5 rounded-[18px] border border-[#dce7f0] bg-white p-5 sm:p-8 print:break-inside-avoid" id="goal">
+          <h2 class="mb-[14px] flex items-center gap-[11px] text-[22px] font-bold leading-[1.4]">
+            <span class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-[#eaf5ff] text-sm text-[#0d477b]">01</span>โจทย์และเป้าหมาย
+          </h2>
           <p>
-                    ระบบตรวจวัดและเฝ้าระวังระดับน้ำบริเวณบ้านหรือถนนหน้าบ้านรวมถึงตรวจวัดภาวะเน่าเสียของน้ำเบื้องต้น 
-        โดยใช้เซนเซอร์ Ultrasonic วัดระดับน้ำ และเซนเซอร์ตรวจวัดคุณภาพอากาศและแก๊สพิษ โดยส่งข้อมูลผ่าน Wi-Fi 
-        ไปยังเว็บไซต์ที่พัฒนาขึ้นเอง เพื่อแสดงระดับน้ำแบบเรียลไทม์ กราฟแสดงแนวโน้มการเปลี่ยนแปลงของระดับน้ำและระบบแจ้งเตือนตามระดับความเสี่ยง 
-        และแจ้งภาวะน้ำเน่าเสียเบื้องต้น
+            ระบบตรวจวัดและเฝ้าระวังระดับน้ำบริเวณบ้านหรือถนนหน้าบ้านรวมถึงตรวจวัดภาวะเน่าเสียของน้ำเบื้องต้น
+            โดยใช้เซนเซอร์ Ultrasonic วัดระดับน้ำ และเซนเซอร์ตรวจวัดคุณภาพอากาศและแก๊สพิษ โดยส่งข้อมูลผ่าน Wi-Fi
+            ไปยังเว็บไซต์ที่พัฒนาขึ้นเอง เพื่อแสดงระดับน้ำแบบเรียลไทม์ กราฟแสดงแนวโน้มการเปลี่ยนแปลงของระดับน้ำและระบบแจ้งเตือนตามระดับความเสี่ยง
+            และแจ้งภาวะน้ำเน่าเสียเบื้องต้น
           </p>
-          <p>
-            เป้าหมายของโครงงานนี้คือการสร้างระบบตรวจวัดและแจ้งเตือนระดับน้ำและคุณภาพอากาศ/แก๊สพิษในบริเวณบ้านหรือถนนหน้าบ้าน 
-            โดยใช้เซนเซอร์ Ultrasonic และ MQ-135 ร่วมกับ Arduino UNO R4 WiFi เพื่อส่งข้อมูลไปยังเว็บไซต์ที่พัฒนาขึ้นเอง 
+          <p class="mb-0">
+            เป้าหมายของโครงงานนี้คือการสร้างระบบตรวจวัดและแจ้งเตือนระดับน้ำและคุณภาพอากาศ/แก๊สพิษในบริเวณบ้านหรือถนนหน้าบ้าน
+            โดยใช้เซนเซอร์ Ultrasonic และ MQ-135 ร่วมกับ Arduino UNO R4 WiFi เพื่อส่งข้อมูลไปยังเว็บไซต์ที่พัฒนาขึ้นเอง
             ซึ่งสามารถแสดงผลแบบเรียลไทม์ กราฟแนวโน้ม และระบบแจ้งเตือนตามระดับความเสี่ยง
           </p>
         </section>
 
-        <section class="section" id="how">
-          <h2><span class="number">02</span>ระบบทำงานอย่างไร</h2>
+        <section class="scroll-mt-5 rounded-[18px] border border-[#dce7f0] bg-white p-5 sm:p-8 print:break-inside-avoid" id="how">
+          <h2 class="mb-[14px] flex items-center gap-[11px] text-[22px] font-bold leading-[1.4]">
+            <span class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-[#eaf5ff] text-sm text-[#0d477b]">02</span>ระบบทำงานอย่างไร
+          </h2>
           <p>
             ใช้ Arduino UNO R4 WiFi อ่านระยะจากเซนเซอร์ Ultrasonic แล้วคำนวณระดับน้ำจากความสูง
             ภาชนะที่กำหนดในโปรแกรม ส่วน MQ-135 อ่านค่า analog เฉลี่ยจากการอ่าน 10 ครั้ง
             และอ่านสัญญาณ digital เพื่อใช้ประกอบการแจ้งเตือน
           </p>
-          <div class="flow" aria-label="ขั้นตอนการทำงานของระบบ">
-            <div class="flow-step"><b>01 · ตรวจวัด</b><span>Ultrasonic และ MQ-135 อ่านค่าประมาณทุก 1 วินาที</span></div>
-            <div class="flow-step"><b>02 · ประมวลผล</b><span>Arduino คำนวณระดับน้ำและตรวจสถานะเตือน</span></div>
-            <div class="flow-step"><b>03 · ส่งข้อมูล</b><span>ส่งข้อมูล JSON ผ่าน Wi-Fi ด้วย MQTT</span></div>
-            <div class="flow-step"><b>04 · แสดงผล</b><span>หน้าเว็บแสดงค่าล่าสุด กราฟ และรายการแจ้งเตือน</span></div>
+          <div class="my-5 mb-1 grid grid-cols-1 gap-[10px] min-[501px]:grid-cols-2 min-[761px]:grid-cols-4" aria-label="ขั้นตอนการทำงานของระบบ">
+            <div class="min-h-28 rounded-[13px] border border-[#dce7f0] bg-[#fbfdff] p-[14px]">
+              <b class="mb-1 block text-sm text-[#0d477b]">01 · ตรวจวัด</b><span class="text-[13px] text-[#62748a]">Ultrasonic และ MQ-135 อ่านค่าประมาณทุก 1 วินาที</span>
+            </div>
+            <div class="min-h-28 rounded-[13px] border border-[#dce7f0] bg-[#fbfdff] p-[14px]">
+              <b class="mb-1 block text-sm text-[#0d477b]">02 · ประมวลผล</b><span class="text-[13px] text-[#62748a]">Arduino คำนวณระดับน้ำและตรวจสถานะเตือน</span>
+            </div>
+            <div class="min-h-28 rounded-[13px] border border-[#dce7f0] bg-[#fbfdff] p-[14px]">
+              <b class="mb-1 block text-sm text-[#0d477b]">03 · ส่งข้อมูล</b><span class="text-[13px] text-[#62748a]">ส่งข้อมูล JSON ผ่าน Wi-Fi ด้วย MQTT</span>
+            </div>
+            <div class="min-h-28 rounded-[13px] border border-[#dce7f0] bg-[#fbfdff] p-[14px]">
+              <b class="mb-1 block text-sm text-[#0d477b]">04 · แสดงผล</b><span class="text-[13px] text-[#62748a]">หน้าเว็บแสดงค่าล่าสุด กราฟ และรายการแจ้งเตือน</span>
+            </div>
           </div>
-          <p class="muted">
+          <p class="mb-0 text-[#62748a]">
             อุปกรณ์ยังแสดงผลบน LCD และใช้ buzzer แจ้งเตือนเฉพาะที่ตัวเครื่องได้
             โดยมีคำสั่งปิด/เปิดเสียงผ่าน Serial Monitor
           </p>
         </section>
 
-        <section class="section" id="progress">
-          <h2><span class="number">03</span>สิ่งที่ลงมือทำแล้ว</h2>
-          <div class="two-col">
+        <section class="scroll-mt-5 rounded-[18px] border border-[#dce7f0] bg-white p-5 sm:p-8 print:break-inside-avoid" id="progress">
+          <h2 class="mb-[14px] flex items-center gap-[11px] text-[22px] font-bold leading-[1.4]">
+            <span class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-[#eaf5ff] text-sm text-[#0d477b]">03</span>สิ่งที่ลงมือทำแล้ว
+          </h2>
+          <div class="grid grid-cols-1 gap-[14px] min-[501px]:grid-cols-2">
             <div>
-              <h3>อุปกรณ์และโปรแกรมควบคุม</h3>
-              <ul>
+              <h3 class="mb-2 text-[17px] font-bold">อุปกรณ์และโปรแกรมควบคุม</h3>
+              <ul class="list-disc space-y-2 pl-5">
                 <li>อ่านระยะด้วย HC-SR04 และคำนวณระดับน้ำจากความสูงภาชนะ</li>
                 <li>ตรวจจับค่าที่อ่านไม่ได้และส่งค่าวัดเป็น null แทนการแสดงค่าที่ไม่น่าเชื่อถือ</li>
                 <li>อ่านค่า MQ-135, แสดงค่าบน LCD และตั้งเงื่อนไขเตือนด้วย buzzer</li>
@@ -432,8 +116,8 @@
               </ul>
             </div>
             <div>
-              <h3>เว็บไซต์และระบบข้อมูล</h3>
-              <ul>
+              <h3 class="mb-2 text-[17px] font-bold">เว็บไซต์และระบบข้อมูล</h3>
+              <ul class="list-disc space-y-2 pl-5">
                 <li>ทำหน้า Dashboard แสดงระดับน้ำ สถานะความเสี่ยง ค่าแก๊ส และสถานะอุปกรณ์</li>
                 <li>ทำกราฟแนวโน้มและรายการแจ้งเตือนจากข้อมูลที่หน้าเว็บได้รับ</li>
                 <li>ทำ backend สำหรับรับ MQTT ตรวจสอบรูปแบบข้อมูล และบันทึกลง SQLite</li>
@@ -443,55 +127,48 @@
           </div>
         </section>
 
-        <section class="section" id="challenges">
-          <h2><span class="number">04</span>อุปสรรคและการปรับวิธี</h2>
-          <ul>
-            <li>
-              <b>ปัจจุบันมีสมาชิกเพียง 2 คน จากปกติ 3 คน</b> เพราะไม่ทราบสาเหตุที่เพื่อนอีกคนไม่เข้าร่วม 
-              จึงต้องปรับวิธีทำงานให้เหมาะสมกับจำนวนคน
-            </li>
-            <li>
-              <b>ระยะเวลามีจำกัด</b> จึงใช้ AI ช่วยสร้างโค้ดตัวอย่างและปรับแก้ให้เหมาะสมกับอุปกรณ์และความต้องการของโครงงาน
-            </li>
-            <li>
-              <b>ข้อมูลเซนเซอร์แก๊สแกว่ง</b>
-              โปรแกรมอ่านค่า analog หลายครั้งแล้วเฉลี่ยก่อนนำไปแสดงผล
-              ส่วนการแจ้งเตือนใช้สัญญาณ digital ของโมดูล
-            </li>
-            <li>
-              <b>การแจ้งเตือนต้องไม่ขึ้นซ้ำถี่เกินไป</b>
-              หน้าเว็บตรวจจับช่วงที่ระดับน้ำข้ามเกณฑ์และจำกัดการแจ้งเตือนซ้ำ
-              ขณะที่ตัวอุปกรณ์ควบคุมเสียงเป็นจังหวะและปิดเสียงได้
-            </li>
+        <section class="scroll-mt-5 rounded-[18px] border border-[#dce7f0] bg-white p-5 sm:p-8 print:break-inside-avoid" id="challenges">
+          <h2 class="mb-[14px] flex items-center gap-[11px] text-[22px] font-bold leading-[1.4]">
+            <span class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-[#eaf5ff] text-sm text-[#0d477b]">04</span>อุปสรรคและการปรับวิธี
+          </h2>
+          <ul class="list-disc space-y-3 pl-5">
+            <li><b>ปัจจุบันมีสมาชิกเพียง 2 คน จากปกติ 3 คน</b> เพราะไม่ทราบสาเหตุที่เพื่อนอีกคนไม่เข้าร่วม จึงต้องปรับวิธีทำงานให้เหมาะสมกับจำนวนคน</li>
+            <li><b>ระยะเวลามีจำกัด</b> จึงใช้ AI ช่วยสร้างโค้ดตัวอย่างและปรับแก้ให้เหมาะสมกับอุปกรณ์และความต้องการของโครงงาน</li>
+            <li><b>ข้อมูลเซนเซอร์แกว่ง</b> โปรแกรมอ่านค่า analog หลายครั้งแล้วเฉลี่ยก่อนนำไปแสดงผล ส่วนการแจ้งเตือนใช้สัญญาณ digital ของโมดูล</li>
+            <li><b>การแจ้งเตือนต้องไม่ขึ้นซ้ำถี่เกินไป</b> หน้าเว็บตรวจจับช่วงที่ระดับน้ำข้ามเกณฑ์และจำกัดการแจ้งเตือนซ้ำ ขณะที่ตัวอุปกรณ์ควบคุมเสียงเป็นจังหวะและปิดเสียงได้</li>
           </ul>
         </section>
 
-        <section class="section" id="limits">
-          <h2><span class="number">05</span>ผลที่ได้และข้อจำกัดตอนนี้</h2>
-          <ul class="status-list">
-            <li><b class="done">ทำได้แล้ว</b>ตรวจวัดและส่งค่าระดับน้ำกับค่า MQ-135 ผ่าน MQTT</li>
-            <li><b class="done">ทำได้แล้ว</b>แสดงข้อมูลสด กราฟ และสถานะเตือนบน Dashboard</li>
-            <li><b class="done">ทำได้แล้ว</b>backend ตรวจสอบข้อมูลและบันทึกประวัติ/การแจ้งเตือนลง SQLite</li>
-            <li><b class="next">ยังต้องพัฒนา</b>เชื่อมหน้า Dashboard เข้ากับ API ประวัติและข้อมูลที่ backend บันทึกไว้</li>
-            <li><b class="next">ยังต้องทดสอบ</b>ความแม่นยำของเซนเซอร์ การติดตั้งภายนอก และการทำงานต่อเนื่องในสภาพจริง</li>
-            <li><b class="next">ยังมีข้อจำกัด</b>ค่าเกณฑ์และความสูงภาชนะเป็นค่าที่ตั้งไว้ในโปรแกรม ต้องปรับเทียบให้ตรงกับพื้นที่ใช้งาน</li>
+        <section class="scroll-mt-5 rounded-[18px] border border-[#dce7f0] bg-white p-5 sm:p-8 print:break-inside-avoid" id="limits">
+          <h2 class="mb-[14px] flex items-center gap-[11px] text-[22px] font-bold leading-[1.4]">
+            <span class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-[#eaf5ff] text-sm text-[#0d477b]">05</span>ผลที่ได้และข้อจำกัดตอนนี้
+          </h2>
+          <ul class="grid grid-cols-1 gap-[10px] p-0 min-[501px]:grid-cols-2">
+            <li class="list-none rounded-xl border border-[#dce7f0] bg-[#fbfdff] p-[13px_15px]"><b class="mb-1 block text-[#16785c]">ทำได้แล้ว</b>ตรวจวัดและส่งค่าระดับน้ำกับค่า MQ-135 ผ่าน MQTT</li>
+            <li class="list-none rounded-xl border border-[#dce7f0] bg-[#fbfdff] p-[13px_15px]"><b class="mb-1 block text-[#16785c]">ทำได้แล้ว</b>แสดงข้อมูลสด กราฟ และสถานะเตือนบน Dashboard</li>
+            <li class="list-none rounded-xl border border-[#dce7f0] bg-[#fbfdff] p-[13px_15px]"><b class="mb-1 block text-[#16785c]">ทำได้แล้ว</b>backend ตรวจสอบข้อมูลและบันทึกประวัติ/การแจ้งเตือนลง SQLite</li>
+            <li class="list-none rounded-xl border border-[#dce7f0] bg-[#fbfdff] p-[13px_15px]"><b class="mb-1 block text-[#a55b11]">ยังต้องพัฒนา</b>เชื่อมหน้า Dashboard เข้ากับ API ประวัติและข้อมูลที่ backend บันทึกไว้</li>
+            <li class="list-none rounded-xl border border-[#dce7f0] bg-[#fbfdff] p-[13px_15px]"><b class="mb-1 block text-[#a55b11]">ยังต้องทดสอบ</b>ความแม่นยำของเซนเซอร์ การติดตั้งภายนอก และการทำงานต่อเนื่องในสภาพจริง</li>
+            <li class="list-none rounded-xl border border-[#dce7f0] bg-[#fbfdff] p-[13px_15px]"><b class="mb-1 block text-[#a55b11]">ยังมีข้อจำกัด</b>ค่าเกณฑ์และความสูงภาชนะเป็นค่าที่ตั้งไว้ในโปรแกรม ต้องปรับเทียบให้ตรงกับพื้นที่ใช้งาน</li>
           </ul>
         </section>
 
-        <section class="section" id="team">
-          <h2><span class="number">06</span>บทบาทและการมีส่วนร่วมของสมาชิก</h2>
-          <div class="member">
-            <img src="img/68070119.png" alt="ภาพสมาชิก 68070119">
+        <section class="scroll-mt-5 rounded-[18px] border border-[#dce7f0] bg-white p-5 sm:p-8 print:break-inside-avoid" id="team">
+          <h2 class="mb-[14px] flex items-center gap-[11px] text-[22px] font-bold leading-[1.4]">
+            <span class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-[#eaf5ff] text-sm text-[#0d477b]">06</span>บทบาทและการมีส่วนร่วมของสมาชิก
+          </h2>
+          <div class="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-3 border-b border-[#dce7f0] py-4 sm:grid-cols-[72px_minmax(0,1fr)] sm:gap-4">
+            <img class="size-14 rounded-full object-cover sm:size-[72px]" src="img/68070119.png" alt="ภาพสมาชิก 68070119">
             <div>
-              <h3>นายพัชร คงอ่ำ รหัสนักศึกษา 68070119</h3>
-              <p><b>IoT Programming</b> — พัฒนาโปรแกรมบน Arduino สำหรับอ่านเซนเซอร์ คำนวณระดับน้ำ ควบคุม LCD/buzzer และส่ง telemetry ผ่าน Wi-Fi/MQTT</p>
+              <h3 class="mb-0 text-[17px] font-bold">นายพัชร คงอ่ำ รหัสนักศึกษา 68070119</h3>
+              <p class="mb-0 mt-[3px] text-sm text-[#62748a]"><b>IoT Programming</b> — พัฒนาโปรแกรมบน Arduino สำหรับอ่านเซนเซอร์ คำนวณระดับน้ำ ควบคุม LCD/buzzer และส่ง telemetry ผ่าน Wi-Fi/MQTT</p>
             </div>
           </div>
-          <div class="member">
-            <img src="img/68070132.png" alt="ภาพสมาชิก 68070132">
+          <div class="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-3 pt-4 sm:grid-cols-[72px_minmax(0,1fr)] sm:gap-4">
+            <img class="size-14 rounded-full object-cover sm:size-[72px]" src="img/68070132.png" alt="ภาพสมาชิก 68070132">
             <div>
-              <h3>นางสาวภัชธนสรณ์ พีรวัฒน์กุล รหัสนักศึกษา 68070132</h3>
-              <p><b>FullStack Developer</b> — พัฒนาหน้า Dashboard และระบบฝั่ง server สำหรับรับ ตรวจสอบ แสดงผล และจัดเก็บข้อมูลของโครงงาน</p>
+              <h3 class="mb-0 text-[17px] font-bold">นางสาวภัชธนสรณ์ พีรวัฒน์กุล รหัสนักศึกษา 68070132</h3>
+              <p class="mb-0 mt-[3px] text-sm text-[#62748a]"><b>FullStack Developer</b> — พัฒนาหน้า Dashboard และระบบฝั่ง server สำหรับรับ ตรวจสอบ แสดงผล และจัดเก็บข้อมูลของโครงงาน</p>
             </div>
           </div>
         </section>
