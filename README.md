@@ -1,4 +1,4 @@
-# Household-level-flood-warning-system
+# Residential Water Level Monitoring and Wastewater Detection System
 Physical Computing Project 2026 - IT KMITL
 
 ## Project Concept
